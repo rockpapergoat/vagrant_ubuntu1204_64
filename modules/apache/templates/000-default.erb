@@ -1,0 +1,25 @@
+LoadModule proxy_module /usr/lib/apache2/modules/mod_proxy.so
+LoadModule proxy_http_module /usr/lib/apache2/modules/mod_proxy_http.so
+
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+	#ServerName app.testing.lan
+	ProxyRequests Off
+<Proxy *>
+	Order deny,allow
+	Allow from all
+</Proxy>
+
+ProxyPass / balancer://cluster/
+#ProxyPassReverse / http://192.168.33.11
+
+<Proxy balancer://cluster>
+	BalancerMember http://192.168.33.11
+	BalancerMember http://192.168.33.12
+	ProxySet lbmethod=byrequests
+</Proxy>
+<Location />
+	Order allow,deny
+	Allow from all
+</Location>
+</VirtualHost>
